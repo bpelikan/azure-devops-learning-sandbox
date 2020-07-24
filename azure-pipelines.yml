@@ -11,6 +11,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  wwwrootDir: 'BlazorApp/wwwroot'
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
