@@ -38,3 +38,7 @@ steps:
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
+
+- template: templates/build.yml
+  parameters:
+    buildConfiguration: '$(buildConfiguration)'
