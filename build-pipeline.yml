@@ -4,6 +4,8 @@ trigger:
 pool:
   vmImage: 'ubuntu-18.04' #ubuntu-latest
 
+variables:
+  buildConfiguration: 'Release'
 
 steps:
 - script: echo Hello, world!
@@ -14,3 +16,8 @@ steps:
     echo See https://aka.ms/yaml
   displayName: 'Run a multi-line script'
 
+- task: UseDotNet@2
+  displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
+  inputs:
+    packageType: sdk
+    version: $(dotnetSdkVersion)
