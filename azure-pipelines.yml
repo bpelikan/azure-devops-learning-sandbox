@@ -35,4 +35,4 @@ steps:
   condition: succeeded()
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'myWebsiteName'
+    artifactName: 'BlazorApp'
