@@ -30,6 +30,16 @@ steps:
   parameters:
     buildConfiguration: '$(buildConfiguration)'
 
+- task: WhiteSource Bolt@20
+  condition: |
+    and
+    (
+      succeeded(),
+      eq(variables['Build.Reason'], 'PullRequest'),
+      eq(variables['System.PullRequest.TargetBranch'], 'master')
+    )
+  displayName: 'Run WhiteSource Bolt'
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
   condition: succeeded()
