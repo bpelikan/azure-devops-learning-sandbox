@@ -57,4 +57,4 @@ steps:
   condition: succeeded()
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'BlazorApp'
+    artifactName: 'Tailspin.SpaceGame.Web'
