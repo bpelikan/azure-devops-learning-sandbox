@@ -6,7 +6,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  wwwrootDir: 'BlazorApp/wwwroot'
+  wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
   dotnetSdkVersion: '3.1.x'
 
 steps:
@@ -45,4 +45,4 @@ steps:
   condition: succeeded()
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'BlazorApp'
+    artifactName: 'Tailspin.SpaceGame.Web'
