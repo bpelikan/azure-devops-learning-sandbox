@@ -10,15 +10,19 @@ variables:
   dotnetSdkVersion: '3.1.x'
 
 steps:
+- template: templates/npmgulp.yml
+  parameters:
+    wwwrootDir: '$(wwwrootDir)'
+
+- script: 'echo "$(Build.DefinitionName) | $(Build.BuildId) | $(Build.BuildNumber)" > buildinfo.txt'
+  displayName: 'Write build info'
+  workingDirectory: $(wwwrootDir)
+
 - task: UseDotNet@2
   displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
   inputs:
     packageType: sdk
     version: $(dotnetSdkVersion)
-
-- script: 'echo "$(Build.DefinitionName) | $(Build.BuildId) | $(Build.BuildNumber)" > buildinfo.txt'
-  displayName: 'Write build info'
-  workingDirectory: $(wwwrootDir)
 
 - task: DotNetCoreCLI@2
   displayName: 'Restore project dependencies'
