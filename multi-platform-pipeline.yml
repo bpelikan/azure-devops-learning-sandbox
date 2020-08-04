@@ -1,8 +1,25 @@
 trigger:
 - '*'
 
+strategy:
+  matrix:
+    linux-latest:
+      imageName: 'ubuntu-latest'
+    # linux-20.04:
+    #   imageName: 'ubuntu-20.04'
+    linux-18.04:
+      imageName: 'ubuntu-18.04'
+    # linux-16.04:
+    #   imageName: 'ubuntu-16.04'
+    # mac:
+    #   imageName: 'macos-10.14'
+    # windows-2019:
+    #   imageName: 'windows-2019'
+    # windows-win2016:
+    #   imageName: 'vs2017-win2016'
+
 pool:
-  vmImage: 'ubuntu-18.04' #ubuntu-latest
+  vmImage: $(imageName) #ubuntu-latest
 
 variables:
   buildConfiguration: 'Release'
