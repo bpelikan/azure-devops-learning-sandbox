@@ -1,8 +1,13 @@
 trigger:
 - '*'
 
+strategy:
+  matrix:
+    linux-18.04:
+      imageName: 'ubuntu-18.04'
+
 pool:
-  vmImage: 'ubuntu-18.04' #ubuntu-latest
+  vmImage: $(imageName) #ubuntu-latest
 
 variables:
   buildConfiguration: 'Release'
