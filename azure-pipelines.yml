@@ -1,57 +1,68 @@
 trigger:
 - '*'
 
-strategy:
-  matrix:
-    linux-18.04:
-      imageName: 'ubuntu-18.04'
-
-pool:
-  vmImage: $(imageName) #ubuntu-latest
-
 variables:
   buildConfiguration: 'Release'
-  wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
-  dotnetSdkVersion: '3.1.x'
 
-steps:
-- template: templates/npmgulp.yml
-  parameters:
-    wwwrootDir: '$(wwwrootDir)'
+stages:
+- stage: 'Build'
+  displayName: 'Build the web application'
+  jobs: 
+  - job: 'Build'
+    displayName: 'Build job'
 
-- script: 'echo "$(Build.DefinitionName) | $(Build.BuildId) | $(Build.BuildNumber)" > buildinfo.txt'
-  displayName: 'Write build info'
-  workingDirectory: $(wwwrootDir)
+    strategy:
+      matrix:
+        linux-18.04:
+          imageName: 'ubuntu-18.04'
 
-- task: UseDotNet@2
-  displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
-  inputs:
-    packageType: sdk
-    version: $(dotnetSdkVersion)
+    pool:
+      vmImage: $(imageName)
+      demands:
+      - npm
 
-- task: DotNetCoreCLI@2
-  displayName: 'Restore project dependencies'
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
+    variables:
+      wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
+      dotnetSdkVersion: '3.1.x'
 
-- template: templates/build.yml
-  parameters:
-    buildConfiguration: '$(buildConfiguration)'
+    steps:
+    - template: templates/npmgulp.yml
+      parameters:
+        wwwrootDir: '$(wwwrootDir)'
 
-- task: WhiteSource Bolt@20
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(variables['Build.Reason'], 'PullRequest'),
-      eq(variables['System.PullRequest.TargetBranch'], 'master')
-    )
-  displayName: 'Run WhiteSource Bolt'
+    - script: 'echo "$(Build.DefinitionName) | $(Build.BuildId) | $(Build.BuildNumber)" > buildinfo.txt'
+      displayName: 'Write build info'
+      workingDirectory: $(wwwrootDir)
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  condition: succeeded()
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'Tailspin.SpaceGame.Web'
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
+      inputs:
+        packageType: sdk
+        version: $(dotnetSdkVersion)
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore project dependencies'
+      inputs:
+        command: 'restore'
+        projects: '**/*.csproj'
+
+    - template: templates/build.yml
+      parameters:
+        buildConfiguration: '$(buildConfiguration)'
+
+    - task: WhiteSource Bolt@20
+      condition: |
+        and
+        (
+          succeeded(),
+          eq(variables['Build.Reason'], 'PullRequest'),
+          eq(variables['System.PullRequest.TargetBranch'], 'master')
+        )
+      displayName: 'Run WhiteSource Bolt'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: drop'
+      condition: succeeded()
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+        artifactName: 'Tailspin.SpaceGame.Web'
