@@ -3,7 +3,7 @@ trigger:
 
 variables:
   buildConfiguration: 'Release'
-  releaseBranchName: 'release-multistage-pipeline'
+  releaseBranchName: 'release'
   appName: 'Tailspin.SpaceGame.Web'
   
 schedules:
@@ -11,7 +11,7 @@ schedules:
     displayName: Deploy every day at 3 A.M.
     branches:
       include:
-      - release-multistage-pipeline
+      - release
     always: false 
 
 
