@@ -3,17 +3,6 @@ trigger:
 
 variables:
   buildConfiguration: 'Release'
-  releaseBranchName: 'release'
-  appName: 'Tailspin.SpaceGame.Web'
-  
-schedules:
-  - cron: '0 3 * * *'
-    displayName: Deploy every day at 3 A.M.
-    branches:
-      include:
-      - release
-    always: false 
-
 
 stages:
 - stage: 'Build'
@@ -21,35 +10,35 @@ stages:
   jobs: 
   - job: 'Build'
     displayName: 'Build job'
-
-    strategy:
-      matrix:
-        linux-18.04:
-          imageName: 'ubuntu-18.04'
-
     pool:
-      vmImage: $(imageName)
+      vmImage: 'ubuntu-18.04'
       demands:
       - npm
 
     variables:
       wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
-      dotnetSdkVersion: '3.1.x'
+      dotnetSdkVersion: '3.1.300'
 
     steps:
-    - template: templates/npmgulp.yml
-      parameters:
-        wwwrootDir: '$(wwwrootDir)'
-
-    - script: 'echo "$(Build.DefinitionName) | $(Build.BuildId) | $(Build.BuildNumber)" > buildinfo.txt'
-      displayName: 'Write build info'
-      workingDirectory: $(wwwrootDir)
-
     - task: UseDotNet@2
       displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
       inputs:
-        packageType: sdk
-        version: $(dotnetSdkVersion)
+        version: '$(dotnetSdkVersion)'
+
+    - task: Npm@1
+      displayName: 'Run npm install'
+      inputs:
+        verbose: false
+
+    - script: './node_modules/.bin/node-sass $(wwwrootDir) --output $(wwwrootDir)'
+      displayName: 'Compile Sass assets'
+
+    - task: gulp@1
+      displayName: 'Run gulp tasks'
+
+    - script: 'echo "$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)" > buildinfo.txt'
+      displayName: 'Write build info'
+      workingDirectory: $(wwwrootDir)
 
     - task: DotNetCoreCLI@2
       displayName: 'Restore project dependencies'
@@ -57,43 +46,35 @@ stages:
         command: 'restore'
         projects: '**/*.csproj'
 
-    - template: templates/build.yml
-      parameters:
-        buildConfiguration: '$(buildConfiguration)'
-
-    - task: WhiteSource Bolt@20
-      condition: |
-        and
-        (
-          succeeded(),
-          eq(variables['Build.Reason'], 'PullRequest'),
-          eq(variables['System.PullRequest.TargetBranch'], 'master')
-        )
-      displayName: 'Run WhiteSource Bolt'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifact: drop'
-      condition: succeeded()
+    - task: DotNetCoreCLI@2
+      displayName: 'Build the project - $(buildConfiguration)'
       inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-        artifactName: drop
+        command: 'build'
+        arguments: '--no-restore --configuration $(buildConfiguration)'
+        projects: '**/*.csproj'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish the project - $(buildConfiguration)'
+      inputs:
+        command: 'publish'
+        projects: '**/*.csproj'
+        publishWebProjects: false
+        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+        zipAfterPublish: true
+
+    - publish: '$(Build.ArtifactStagingDirectory)'
+      artifact: drop
 
 - stage: 'Dev'
-  displayName: 'Deploy the web application'
+  displayName: 'Deploy to the dev environment'
   dependsOn: Build
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
-    )
   jobs:
   - deployment: Deploy
     pool:
       vmImage: 'ubuntu-18.04'
     environment: dev
     variables:
-    - group: 'Release'
+    - group: Release
     strategy:
       runOnce:
         deploy:
@@ -104,14 +85,12 @@ stages:
             displayName: 'Azure App Service Deploy: website'
             inputs:
               azureSubscription: 'Resource Manager - Tailspin - Space Game'
-              appType: webAppLinux
               appName: '$(WebAppNameDev)'
-              package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/$(appName).zip'
+              package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
 - stage: 'Test'
   displayName: 'Deploy to the test environment'
   dependsOn: Dev
-  #condition: eq(variables['Build.Reason'], 'Schedule')
   jobs:
   - deployment: Deploy
     pool:
@@ -129,7 +108,6 @@ stages:
             displayName: 'Azure App Service Deploy: website'
             inputs:
               azureSubscription: 'Resource Manager - Tailspin - Space Game'
-              appType: webAppLinux
               appName: '$(WebAppNameTest)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
@@ -153,6 +131,5 @@ stages:
             displayName: 'Azure App Service Deploy: website'
             inputs:
               azureSubscription: 'Resource Manager - Tailspin - Space Game'
-              appType: webAppLinux
               appName: '$(WebAppNameStaging)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
