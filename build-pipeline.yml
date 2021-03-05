@@ -1,10 +1,19 @@
-trigger:
-  branches:
-    include:
-    - '*'     # build all branches
-  paths:
-    exclude:
-    - docs/*  # exclude the docs folder
+resources:
+  pipelines:
+  - pipeline: build-pipeline.yml   # Name of the pipeline resource
+    source: azure-pipelines.yml # Name of the pipeline referenced by the pipeline resource
+    trigger: 
+      branches:
+        include:
+          - '*'     # build all branches
+
+# trigger:
+#   branches:
+#     include:
+#     - '*'     # build all branches
+#   paths:
+#     exclude:
+#     - docs/*  # exclude the docs folder
 
 pool:
   vmImage: 'ubuntu-18.04' #ubuntu-latest
