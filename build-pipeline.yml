@@ -2,7 +2,7 @@ trigger: none
 resources:
   pipelines:
   - pipeline: buildpipeline   # Name of the pipeline resource
-    source: azure-pipelines # Name of the pipeline referenced by the pipeline resource
+    source: azure-pipelines2 # Name of the pipeline referenced by the pipeline resource
     trigger: 
       branches:
         include:
