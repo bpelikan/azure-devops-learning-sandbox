@@ -1,13 +1,14 @@
+trigger: none
 resources:
   pipelines:
-  - pipeline: build-pipeline.yml   # Name of the pipeline resource
-    source: azure-pipelines.yml # Name of the pipeline referenced by the pipeline resource
+  - pipeline: buildpipeline   # Name of the pipeline resource
+    source: azure-pipelines # Name of the pipeline referenced by the pipeline resource
     trigger: 
       branches:
         include:
-          - '*'     # build all branches
+          - 'test/multipipeline'    # build all branches
 
-# trigger:
+# trigger: 
 #   branches:
 #     include:
 #     - '*'     # build all branches
