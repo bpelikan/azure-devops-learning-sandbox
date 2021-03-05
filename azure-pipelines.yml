@@ -30,6 +30,11 @@ stages:
      
 
     steps:
+    - script: 'echo "$(Build.ArtifactStagingDirectory) | $(Build.DefinitionName) | $(Build.BuildId) | $(Build.BuildNumber)"'
+      displayName: 'Write build info'
+    - script: 'ls -R'
+      displayName: 'Write build info'
+
     - task: UseDotNet@2
       displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
       inputs:
@@ -53,10 +58,29 @@ stages:
       displayName: Publish
       inputs:
         command: 'publish'
-        publishWebProjects: false      
+        publishWebProjects: false
         projects: '$(solution)'
         arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/PressTrust/Bin'
-        zipAfterPublish: false   
+        zipAfterPublish: false
+
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: '$(Build.ArtifactStagingDirectory)/PressTrust/Bin/s'
+        contents: '**' 
+        targetFolder: '$(Build.ArtifactStagingDirectory)/PressTrust/Bin'
+
+    - task: DeleteFiles@1
+      inputs:
+        SourceFolder: '$(Build.ArtifactStagingDirectory)/PressTrust/Bin/s'
+        Contents: '**/*' 
+        RemoveSourceFolder: true
+
+    - script: 'ls -R'
+      displayName: 'Write build info'
+
+    - script: 'ls -R $(Build.ArtifactStagingDirectory)'
+      displayName: 'Write build info'
+
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Artifact: drop'

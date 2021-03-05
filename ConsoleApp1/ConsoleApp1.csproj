@@ -5,8 +5,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <OutputPath>../</OutputPath>
-  </PropertyGroup>
+  <!-- <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OutputPath>../.</OutputPath>
+  </PropertyGroup> -->
 
 </Project>
