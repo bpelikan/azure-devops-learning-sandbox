@@ -5,6 +5,8 @@ variables:
   buildConfiguration: 'Release'
   releaseBranchName: 'release'
   appName: 'Tailspin.SpaceGame.Web'
+  buildProjects: '**/*.csproj'
+  solution: '**/*.sln'
   
 schedules:
   - cron: '*/15 * * * *'
@@ -35,6 +37,7 @@ stages:
 
     variables:
       dotnetSdkVersion: '3.1.x'
+     
 
     steps:
     - task: UseDotNet@2
