@@ -6,7 +6,7 @@ variables:
   releaseBranchName: 'release'
   appName: 'Tailspin.SpaceGame.Web'
   buildProjects: '**/*.csproj'
-  solution: '**/*.sln'
+  solution: 'Tailspin.SpaceGame.Web.sln'
   
 stages:
 - stage: 'Build'
